@@ -150,6 +150,18 @@ export class AYM_MyModel {
       this.waGain.gain.value = AYM_Utils.clamp_flt(gain, 0.0, 1.0);
     }
   }
+
+  sendNoteOn(channel, frequency, amplitude) {
+    this.sendMessage("NoteOn", {
+      channel,
+      frequency,
+      amplitude,
+    });
+  }
+
+  sendNoteOff(channel) {
+    this.sendMessage("NoteOff", { channel });
+  }
 }
 
 // ---------------------------------------------------------------------------
