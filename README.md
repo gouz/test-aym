@@ -1,15 +1,8 @@
-# gbmusic
+# test-aym
 
-To install dependencies:
-
-```bash
-bun install
+```sh
+pnpm install
+pnpm run dev
 ```
 
-To run:
-
-```bash
-bun run index.ts
-```
-
-This project was created using `bun init` in bun v1.0.2. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
+Plug your midi device
