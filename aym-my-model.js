@@ -1,5 +1,5 @@
 /*
- * aym-player-model.js - Copyright (c) 2001-2023 - Olivier Poncet
+ * aym-synth-model.js - Copyright (c) 2001-2023 - Olivier Poncet
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,10 +18,10 @@
 import { AYM_Utils } from "./aym-utils.js";
 
 // ---------------------------------------------------------------------------
-// AYM_PlayerModel
+// AYM_SynthModel
 // ---------------------------------------------------------------------------
 
-export class AYM_MidiModel {
+export class AYM_MyModel {
   constructor() {
     this.waContext = null;
     this.waGain = null;
@@ -43,9 +43,7 @@ export class AYM_MidiModel {
   async createContext() {
     if (this.waContext == null) {
       this.waContext = new AudioContext();
-      await this.waContext.audioWorklet.addModule(
-        "aymjs/aym-midi-processor.js"
-      );
+      await this.waContext.audioWorklet.addModule("/aym-synth-processor.js");
     }
   }
 
@@ -83,10 +81,13 @@ export class AYM_MidiModel {
       };
       this.waWorklet = new AudioWorkletNode(
         this.waContext,
-        "aym-midi-processor",
+        "aym-synth-processor",
         audioWorkletNodeOptions
       );
       this.waWorklet.connect(this.waGain);
+      this.waWorklet.port.onmessage = (message) => {
+        this.recvMessage(message);
+      };
     }
   }
 
@@ -111,18 +112,42 @@ export class AYM_MidiModel {
     return false;
   }
 
-  setGain(gain) {
-    if (this.waGain != null) {
-      this.waGain.gain.value = AYM_Utils.clamp_flt(gain, 0.0, 1.0);
-    }
-  }
-
   sendMessage(type = null, data = null) {
     if (this.waWorklet != null) {
       this.waWorklet.port.postMessage({
         message_type: type,
         message_data: data,
       });
+    }
+  }
+
+  recvMessage(message) {
+    const payload = message.data;
+  }
+
+  sendReset() {
+    this.sendMessage("Reset");
+  }
+
+  sendPause() {
+    this.sendMessage("Pause");
+  }
+
+  sendMuteA() {
+    this.sendMessage("MuteA");
+  }
+
+  sendMuteB() {
+    this.sendMessage("MuteB");
+  }
+
+  sendMuteC() {
+    this.sendMessage("MuteC");
+  }
+
+  setGain(gain) {
+    if (this.waGain != null) {
+      this.waGain.gain.value = AYM_Utils.clamp_flt(gain, 0.0, 1.0);
     }
   }
 }
